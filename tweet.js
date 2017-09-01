@@ -1,0 +1,83 @@
+var Twitter = require('twitter');
+var fs = require('fs');
+var sleep = require('sleep');
+var client = new Twitter({
+    "consumer_key": 'ZhS8wgd1LqOpOXtWIKfKl7gQF',
+    "consumer_secret": 'adlY340PUSBuLiywawfzMOuHNMArFlmf4e6vD6VciirurZCGhc',
+    "access_token_key": '851741824809152516-7HiY023K0r57taxk43uaB7iKsbOvRth',
+    "access_token_secret": 'anmp3Kw2p593PtL1Psm5cLSQBj06MxjXE8keY9jkja9sH'
+});
+console.log("starting")
+var tweeted_user = []
+var sleepTime = [15, 18, 20, 15, 30]
+fs.readFile('tweeted_user.json', 'utf8', function(err, users) {
+    tweeted_user = users.split(",");
+    tweeted_user.splice(-1, 1)
+    // console.log(tweeted_user[0]);
+})
+
+function postTweet(paran, user, callback) {
+    client.post('statuses/update', param, function(error, tweet, response) {
+        console.log(error);
+        // if(error) throw error;
+        if (!error) {
+            console.log(tweet); // Tweet body.
+            console.log(response.created_at); // Raw response object.
+            user += 3;
+            sleep.sleep(60 * sleepTime[Math.floor(Math.random() * 4)])
+            param = {
+                status: tweet
+            }
+            postTweet(paran, callback)
+        } else callback();
+    });
+}
+fs.readFile('user.json', 'utf8', function(err, contents) {
+    var user = 0;
+    while (true) {
+        user1 = contents.split(",")[user];
+        user2 = contents.split(",")[user + 1];
+        user3 = contents.split(",")[user + 2];
+        console.log(user1);
+        console.log(user2);
+        console.log(user3);
+        tweet = " ";
+        console.log(tweeted_user);
+        if (tweeted_user.indexOf(user1) < 0 && tweeted_user.indexOf(user2) < 0 && tweeted_user.indexOf(user3) < 0) {
+            tweet = "Get free giftcards at https://www.cinchbucks.com/reg/thobhani.freddy " + "@" + user1 + " " + "@" + user2 + " " + "@" + user3;
+            fs.appendFileSync("tweeted_user.json", user1 + ",");
+            fs.appendFileSync("tweeted_user.json", user2 + ",");
+            fs.appendFileSync("tweeted_user.json", user3 + ",");
+            console.log(tweet);
+        } else if (tweeted_user.indexOf(user1) > -1 && tweeted_user.indexOf(user2) < 0 && tweeted_user.indexOf(user3) < 0) {
+            console.log(user1 + " already in list");
+            tweet = "Get free giftcards at https://www.cinchbucks.com/reg/thobhani.freddy  " + "@" + user2 + " " + "@" + user3;
+            fs.appendFileSync("tweeted_user.json", user2 + ",");
+            fs.appendFileSync("tweeted_user.json", user3 + ",");
+        } else if (tweeted_user.indexOf(user2) > -1 && tweeted_user.indexOf(user1) < 0 && tweeted_user.indexOf(user3) < 0) {
+            console.log(user2 + " already in list");
+            tweet = "Get free giftcards at https://www.cinchbucks.com/reg/thobhani.freddy  " + "@" + user1 + " " + "@" + user3;
+            fs.appendFileSync("tweeted_user.json", user2 + ",");
+            fs.appendFileSync("tweeted_user.json", user3 + ",");
+        } else if (tweeted_user.indexOf(user3) > -1 && tweeted_user.indexOf(user1) < 0 && tweeted_user.indexOf(user2) < 0) {
+            console.log(user3 + " already in list");
+            tweet = "Get free giftcards at https://www.cinchbucks.com/reg/thobhani.freddy  " + "@" + user1 + " " + "@" + user2;
+            fs.appendFileSync("tweeted_user.json", user1 + ",");
+            fs.appendFileSync("tweeted_user.json", user2 + ",");
+        } else {
+            user += 3
+            continue
+        }
+        if (tweet.length > 0 && tweet.length <= 140) {
+            param = {
+                status: tweet
+            };
+            postTweet(param, user, function() {
+                console.log("DONE!")
+            });
+            // sleep.sleep(60  * sleepTime[Math.floor(Math.random() * 4)])
+        }
+        user += 3
+        return
+    }
+});
